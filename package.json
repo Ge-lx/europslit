@@ -1,0 +1,25 @@
+{
+  "name": "split",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "split"
+  },
+  "author": "Ge-lx",
+  "license": "ISC",
+  "dependencies": {
+    "bluebird": "^3.5.4",
+    "express": "^4.16.4",
+    "express-promise-router": "^3.0.3",
+    "glob": "^7.1.4",
+    "knex": "^0.16.5",
+    "lodash": "^4.17.11",
+    "morgan": "^1.9.1",
+    "sqlite3": "^4.0.7"
+  }
+}
