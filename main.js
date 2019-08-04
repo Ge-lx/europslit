@@ -1,9 +1,3 @@
-const express = require('express');
-const path = require('path');
-const http = require('http');
-const db = require('./db');
-const router = require('./router');
-
 const CONFIG = {
 	env: process.env.NODE_ENV || 'development',
 	version: '0.1DEV',
@@ -18,12 +12,21 @@ const CONFIG = {
 	},
 	auth: {
 		cookieName: 'auth_token',
+		jwtSecret: 'a6b8af8ebad2bb1d3ca8229ad979b0cd4c1eacf7d062d35a4ec7a6348ad2080d335619115391ec1fb3572f279bc77cb2641d6a9d023b09439b5d190c29b8214d',
 		cookieOptions: {
 			maxAge: 900000,
 			httpOnly: true
 		}
 	}
 };
+
+module.exports = { CONFIG };
+
+const express = require('express');
+const path = require('path');
+const http = require('http');
+const db = require('./db');
+const router = require('./router');
 
 (async () => {
 	console.log(`Starting split v${CONFIG.version}`);

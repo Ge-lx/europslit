@@ -1,4 +1,6 @@
 const crypto = require('crypto');
+const { CONFIG } = require('./main');
+const jwt = require('jsonwebtoken');
 const Promise = require('bluebird');
 
 async function hashPassword (password) {
@@ -17,4 +19,8 @@ async function compareHash (password, salt, hash) {
 	return computedHash === hash;
 }
 
-module.exports = { hashPassword, compareHash };
+async function createJWT (user) {
+	return jwt.sign(user, CONFIG.auth.jwtSecret);
+}
+
+module.exports = { hashPassword, compareHash, createJWT };

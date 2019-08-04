@@ -2,6 +2,8 @@ const express = require('express');
 const async_router = require('express-promise-router');
 const glob = require('glob');
 const morgan = require('morgan');
+const jwt = require('express-jwt');
+const { CONFIG } = require('./main');
 
 module.exports.init = function (app, config) {
   // setup middleware
@@ -15,6 +17,8 @@ module.exports.init = function (app, config) {
   }))
 
   app.use('/static', express.static('static'))
+  app.use(jwt({ secret: CONFIG.auth.jwtSecret }).unless({ path: ['/signup', '/login'] }));
+
   // register routes
 
   let controllers = glob.sync(config.root + '/routes/**/*.js')
@@ -44,6 +48,7 @@ module.exports.init = function (app, config) {
 
     if (config.env === 'development') {
       console.log('Uncaught Error: ', error);
+      console.log(new Error().stack);
     }
 
     if (res.statusCode) {

@@ -69,6 +69,7 @@ const checkSchema = async () => {
 	if (await knex.schema.hasTable('user') === false) {
 		await knex.schema.createTable('user', table => {
 			table.increments('id').primary();
+			table.string('shortId').notNullable();
 			table.string('username').notNullable();
 			table.string('hash').notNullable();
 			table.string('salt').notNullable();
