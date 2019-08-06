@@ -66,6 +66,15 @@ const dropGroupTable = async groupId => {
 };
 
 const checkSchema = async () => {
+	if (process.argv[2] === 'clearData') {
+		console.log('Clearing database tables...');
+		await knex.schema.dropTable('user');
+		(await knex('group')).forEach(async group => {
+			await knex.schema.dropTable(group.groupName);
+		});
+		await knex.schema.dropTable('group');
+	}
+
 	if (await knex.schema.hasTable('user') === false) {
 		await knex.schema.createTable('user', table => {
 			table.increments('id').primary();
@@ -81,6 +90,7 @@ const checkSchema = async () => {
 	if (await knex.schema.hasTable('group') === false) {
 		await knex.schema.createTable('group', table => {
 			table.increments('id').primary();
+			table.string('shortId').notNullable();
 			table.string('name').notNullable();
 			table.json('members');
 		})

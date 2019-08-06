@@ -20,7 +20,7 @@ async function compareHash (password, salt, hash) {
 }
 
 async function createJWT (user) {
-	return jwt.sign(user, CONFIG.auth.jwtSecret);
+	return Promise.fromCallback(cb => jwt.sign(user, CONFIG.auth.jwtSecret, cb));
 }
 
 module.exports = { hashPassword, compareHash, createJWT };

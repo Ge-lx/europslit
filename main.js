@@ -16,7 +16,8 @@ const CONFIG = {
 		cookieOptions: {
 			maxAge: 900000,
 			httpOnly: true
-		}
+		},
+		unauthorizedPaths: ['/login', '/register']
 	}
 };
 

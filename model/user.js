@@ -1,6 +1,7 @@
 const crypto = require('../crypto');
+const _ = require('lodash');
 const { knex } = require('../db');
-const { USER_NOT_FOUND, INVALID_LOGIN } = require('../errorcodes');
+const { USER_NOT_FOUND, INVALID_LOGIN, USERNAME_TAKEN } = require('../errorcodes');
 const shortid = require('shortid');
 
 const loginUser = async (username, password) => {
@@ -9,15 +10,15 @@ const loginUser = async (username, password) => {
 		.where({ username });
 
 	if (!found_user || found_user.length < 1) {
-		throw USER_NOT_FOUND;
+		throw USER_NOT_FOUND();
 	}
 
 	if (await crypto.compareHash(password, found_user[0].salt, found_user[0].hash) === false) {
-		throw INVALID_LOGIN;
+		throw INVALID_LOGIN();
 	}
 
 	let user = _.pick(found_user[0], ['username', 'shortId']);
-	let token = crypto.createJWT(user);
+	let token = await crypto.createJWT(user);
 
 	await knex('user')
 		.where({ username })
@@ -26,7 +27,7 @@ const loginUser = async (username, password) => {
 	return { token, user };
 }
 
-const addUser = async (username, password) => {
+const registerUser = async (username, password) => {
 
 	const other_user = await knex('user')
 		.where({
@@ -34,7 +35,7 @@ const addUser = async (username, password) => {
 		});
 
 	if (other_user && other_user.length > 0) {
-		throw 'Username already taken.';
+		throw USERNAME_TAKEN();
 	}
 
 	const { hash, salt } = await crypto.hashPassword(password);
@@ -54,13 +55,13 @@ const addUser = async (username, password) => {
 		username: username,
 		shortId: userId
 	};
-	let token = crypto.createJWT(user);
+	let token = await crypto.createJWT(user);
 
 	return { token, user };
 };
 
 
 module.exports = {
-	addUser,
+	registerUser,
 	loginUser
 }

@@ -1,11 +1,12 @@
-const { createGroupTable, tableNameFor, knex } = require('../db.js');
+const { createGroupTable, tableNameFor, knex } = require('../db');
+const { INVALID_GROUP_REQUEST, GROUP_NOT_FOUND, GROUPNAME_TAKEN } = require('../errorcodes')
 const _ = require('lodash')
 
-const getGroupById = async groupId => {
-	let group = await knex('group').where({id: groupId}).first();
+const getGroupByShortId = async groupId => {
+	let group = await knex('group').where({shortId: groupId}).first();
 
 	if (!group) {
-		throw `Could not find group with id ${groupId}`;
+		throw GROUP_NOT_FOUND({ groupId });
 	}
 	return _.defaults(group, {
 		members: []
@@ -15,18 +16,16 @@ const getGroupById = async groupId => {
 const createGroup = async (groupName, members) => {
 	let group_entry = await knex('group').where({name: groupName});
 	if (group_entry && group_entry.length > 0) {
-		throw `Cannot create group ${groupName}! It already exists.`;
+		throw GROUPNAME_TAKEN({ groupName });
 	} else {
-		let group_id = (await knex('group').insert({
+		let createdGroup = await knex('group').insert({
 			name: groupName,
 			members: members
-		}))[0];
+		}).first();
 
-		await createGroupTable(group_id);
+		await createGroupTable(createdGroup.id);
 		return {
-			id: group_id,
-			name: groupName,
-			members
+			group: createGroup
 		}
 	}
 };
@@ -44,15 +43,15 @@ const createGroup = async (groupName, members) => {
 }
 
 */
-const addExpense = async (groupId, expense) => {
+const addExpense = async (groupShortId, expense) => {
 	if (!expense.hasOwnProperty('amount') || !expense.hasOwnProperty('description') || !expense.hasOwnProperty('paying_user')) {
-		throw `Invalid expense schema! Amount, description and paying_user are required!`
+		throw INVALID_GROUP_REQUEST();
 	}
 	let splitting = expense.splitting || {};
 
-	let group = await knex('group').where({id: groupId}).first();
+	let group = await knex('group').where({ shortId: groupShortId }).first();
 	if (group && group.length < 1) {
-		throw 'Group not found!';
+		throw GROUP_NOT_FOUND();
 	}
 
 	let tableName = tableNameFor(group.name);

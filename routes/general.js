@@ -2,7 +2,7 @@
 
 module.exports = (router, config) => {
 
-	router.post('/home/', async (req, res) => {
+	router.get('/home', async (req, res) => {
 		return res.json({ user: req.user });
 	});
 }
